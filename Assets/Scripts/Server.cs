@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Agones;
 using Agones.Model;
+using MyEssentials;
+using MyEssentials.Serialization;
 public class Server : MonoBehaviour
 {
     private int m_Port = 7777;

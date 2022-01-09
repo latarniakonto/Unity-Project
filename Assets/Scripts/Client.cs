@@ -1,13 +1,11 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Text;
 using System.Net.Sockets;
-
 using System.Collections;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
+using MyEssentials;
+using MyEssentials.Serialization;
 
 public class Client : MonoBehaviour
 {
@@ -18,10 +16,12 @@ public class Client : MonoBehaviour
     private int m_ServerPort = 7777;
     [SerializeField] private float m_Speed = 3f;    
     private Vector3 m_OldPosition;
+    private SerializationManager m_Serialization;
     void Start()
     {
         client = new UdpClient(m_SeverAdress, m_ServerPort);
         m_OldPosition = transform.position;
+        m_Serialization = new SerializationManager();
     }
 
     // Update is called once per frame
@@ -59,27 +59,7 @@ public class Client : MonoBehaviour
                   y:{y},
                   z:{z}");
         
-        byte[] bytes = SerializePlayer(player);
+        byte[] bytes = m_Serialization.SerializePlayer(player);
         client.Send(bytes, bytes.Length);                
-    }
-    private byte[] SerializePlayer(Player player)
-    {
-        var formatter = new BinaryFormatter();
-        using(var stream = new MemoryStream())
-        {        
-            formatter.Serialize(stream, player);
-            return stream.ToArray();
-        }
-    }
-    private Player DeserializePlayer(byte[] bytes)
-    {
-        var formatter = new BinaryFormatter();
-        using(var stream = new MemoryStream())
-        {        
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Seek(0, SeekOrigin.Begin);
-            Player player = (Player)formatter.Deserialize(stream);
-            return player;
-        }
-    }
+    }    
 }
