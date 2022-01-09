@@ -5,11 +5,11 @@ namespace MyEssentials
     [Serializable]
     public struct Player
     {
-        public int id;
+        public string id;
         public float xPosition;
         public float yPosition;
         public float zPosition;
-        public Player(int id, float xPosition, float yPosition, float zPosition)
+        public Player(string id, float xPosition, float yPosition, float zPosition)
         {
             this.id = id;
             this.xPosition = xPosition;
