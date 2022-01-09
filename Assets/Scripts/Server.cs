@@ -1,40 +1,37 @@
+using System;
+using System.Net;
+using System.Text;
+using System.Net.Sockets;
 using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using Agones;
 using Agones.Model;
 public class Server : MonoBehaviour
 {
+    private int m_Port = 7777;
+    private UdpClient m_Client;
     private AgonesSdk m_Agones;
     private GameServer m_GameServer; 
     // Start is called before the first frame update
     
-    private async void CreateGameServerV1()
+    private async void CreateAgonesServerV1()
     {        
         m_Agones = GetComponent<AgonesSdk>();
         bool connected = await m_Agones.Connect();
         if(!connected)
         {
             Debug.Log("Could not connect to Agones.");
-            return;
+            Application.Quit(1);
         }        
-        Debug.Log("Succesfully connected to Agones");
-        m_GameServer = await m_Agones.GameServer();
-        if(m_GameServer == null)
-        {            
-            Debug.Log("There was problem with retrieving the game server.");
-            return;
-        }
-        Debug.Log("Succesfully created game server.");
+        Debug.Log("Succesfully connected to Agones");        
         bool ready = await m_Agones.Ready();
         if(!ready)
         {
-            Debug.Log("Game server is not ready for retrieving the players.");
-            return;
+            Debug.Log("Agones is not ready for retrieving the players.");
+            Application.Quit(1);
         }
-        Debug.Log("Game server is ready for retrieving the players.");
+        Debug.Log("Agones is ready for retrieving the players.");
     }
     private async void CreateGameServerV2()
     {
@@ -71,20 +68,10 @@ public class Server : MonoBehaviour
     }
 
     void Start()
-    {                
-        CreateGameServerV1();                    
-        // bool ready = await m_Agones.Ready();
-        // if(!ready)
-        // {
-        //     Debug.Log("Game server is not ready yet.");
-        //     return;
-        // }
-        // m_GameServer = await m_Agones.GameServer();
-        // if(m_GameServer == null)
-        // {
-        //     Debug.Log("There was problem with retrieving the server.");
-        //     return;
-        // }
+    {              
+        m_Client = new UdpClient(m_Port);
+
+        CreateAgonesServerV1();
     }
     
     private IEnumerator StopForSeconds(float seconds)
@@ -94,6 +81,22 @@ public class Server : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(m_Client.Available > 0)
+        {
+            IPEndPoint remote = null;
+            byte[] recvBytes = m_Client.Receive(ref remote);
+            string recvText = Encoding.UTF8.GetString(recvBytes);
 
+            string[] recvTexts = recvText.Split(' ');
+            Debug.Log(@$"Player position
+                      x:{recvTexts[0]}
+                      y:{recvTexts[1]}
+                      z:{recvTexts[2]}");
+        }
     }    
+    void OnDestroy() 
+    {
+        Debug.Log("Closing server.");
+        m_Client.Close();
+    }
 }
