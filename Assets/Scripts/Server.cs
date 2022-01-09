@@ -15,7 +15,7 @@ public class Server : MonoBehaviour
     private UdpClient m_Client;
     private AgonesSdk m_Agones;
     private GameServer m_GameServer; 
-    // Start is called before the first frame update
+    private SerializationManager m_Serialization;
     
     private async void CreateAgonesServerV1()
     {        
@@ -72,8 +72,8 @@ public class Server : MonoBehaviour
     void Start()
     {              
         m_Client = new UdpClient(m_Port);
-
-        CreateAgonesServerV1();
+        CreateAgonesServerV1();        
+        m_Serialization = new SerializationManager();
     }
     
     private IEnumerator StopForSeconds(float seconds)
@@ -87,13 +87,9 @@ public class Server : MonoBehaviour
         {
             IPEndPoint remote = null;
             byte[] recvBytes = m_Client.Receive(ref remote);
-            string recvText = Encoding.UTF8.GetString(recvBytes);
-
-            string[] recvTexts = recvText.Split(' ');
-            Debug.Log(@$"Player position
-                      x:{recvTexts[0]}
-                      y:{recvTexts[1]}
-                      z:{recvTexts[2]}");
+            Player player = m_Serialization.DeserializePlayer(recvBytes);
+            
+            Debug.Log(@$"Player {player.id} position x:{player.xPosition} y:{player.yPosition} z:{player.zPosition}");
         }
     }    
     void OnDestroy() 
