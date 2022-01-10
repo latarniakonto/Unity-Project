@@ -11,7 +11,7 @@ using MyEssentials;
 using MyEssentials.Serialization;
 public class Server : MonoBehaviour
 {
-    private int m_Port = 7777;
+    private int m_Port = 26000;
     private UdpClient m_Client;
     private AgonesSdk m_Agones;
     private GameServer m_GameServer; 
@@ -74,7 +74,7 @@ public class Server : MonoBehaviour
     void Start()
     {              
         m_Client = new UdpClient(m_Port);
-        CreateAgonesServerV1();        
+        //CreateAgonesServerV1();        
         m_Serialization = new SerializationManager();
         m_Players = new Player[4];
         m_PlayersCount = 0;

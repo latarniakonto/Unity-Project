@@ -13,8 +13,8 @@ public class Client : MonoBehaviour
 
     private UdpClient m_Client;
     private string m_ClientId = null;
-    private string m_SeverAdress = "127.0.0.1";
-    private int m_ServerPort = 7777;
+    private string m_SeverAdress = "172.20.0.2";
+    private int m_ServerPort = 26000;
     [SerializeField] private float m_Speed = 3f; 
     [SerializeField] private GameObject m_PlayerInstance;
     private Vector3 m_OldPosition;
@@ -66,7 +66,7 @@ public class Client : MonoBehaviour
     public void UpdateOtherPlayers(Player[] players)
     {        
         foreach(var player in players)
-        {
+        {           
             if(player.id != null && m_ClientId != player.id)
             {      
                 if(!m_OtherPlayersInstances.ContainsKey(player.id))          
