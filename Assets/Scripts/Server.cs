@@ -16,6 +16,8 @@ public class Server : MonoBehaviour
     private AgonesSdk m_Agones;
     private GameServer m_GameServer; 
     private SerializationManager m_Serialization;
+    private Player[] m_Players;
+    private int m_PlayersCount;
     
     private async void CreateAgonesServerV1()
     {        
@@ -74,6 +76,8 @@ public class Server : MonoBehaviour
         m_Client = new UdpClient(m_Port);
         CreateAgonesServerV1();        
         m_Serialization = new SerializationManager();
+        m_Players = new Player[4];
+        m_PlayersCount = 0;
     }
     
     private IEnumerator StopForSeconds(float seconds)
@@ -87,11 +91,36 @@ public class Server : MonoBehaviour
         {
             IPEndPoint remote = null;
             byte[] recvBytes = m_Client.Receive(ref remote);
-            Player player = m_Serialization.DeserializePlayer(recvBytes);
-            
-            Debug.Log(@$"Player {player.id} position x:{player.xPosition} y:{player.yPosition} z:{player.zPosition}");
+            Player player = m_Serialization.DeserializePlayer(recvBytes);            
+            if(m_PlayersCount < m_Players.Length)
+            {
+                AddNewPlayer(player);                
+                byte[] bytes = m_Serialization.SerializePlayers(m_Players);
+                m_Client.Send(bytes, bytes.Length, remote);            
+            }else
+            {
+                Debug.Log("Server can't listen to more clients.");
+            }
         }
     }    
+    private void AddNewPlayer(Player player)
+    {
+        for(int i = 0; i < m_PlayersCount; i++)
+        {
+            //Don't add the same player twice, just update position
+            if(m_Players[i].id == player.id)
+            {                
+                m_Players[i].xPosition = player.xPosition;
+                m_Players[i].yPosition = player.yPosition;
+                m_Players[i].zPosition = player.zPosition;
+                Debug.Log(@$"Player {player.id} position x:{player.xPosition} y:{player.yPosition} z:{player.zPosition}");
+                return;
+            }                
+        }
+        m_Players[m_PlayersCount] = player;
+        m_PlayersCount++;        
+        Debug.Log(@$"Player {player.id} position x:{player.xPosition} y:{player.yPosition} z:{player.zPosition}");
+    }
     void OnDestroy() 
     {
         Debug.Log("Closing server.");
