@@ -13,7 +13,7 @@ public class Client : MonoBehaviour
 
     private UdpClient m_Client;
     private string m_ClientId = null;
-    private string m_SeverAdress = "172.20.0.2";
+    private string m_SeverAdress = "172.19.0.2";
     private int m_ServerPort = 26000;
     [SerializeField] private float m_Speed = 3f; 
     [SerializeField] private GameObject m_PlayerInstance;
@@ -22,6 +22,10 @@ public class Client : MonoBehaviour
     private Player[] m_OtherPlayers;
     private Dictionary<string, GameObject> m_OtherPlayersInstances;
     void Awake()
+    {
+        ParseCommandLineArguments();
+    }
+    private void ParseCommandLineArguments()
     {
         string[] args = System.Environment.GetCommandLineArgs();
         for(int i = 0; i < args.Length; i++)
@@ -35,6 +39,26 @@ public class Client : MonoBehaviour
                     throw new Exception("Argument --name without value.");
                 
                 m_ClientId = args[i + 1];                
+            }
+            if(args[i] == "--ip")
+            {
+                if(i + 1 == args.Length)
+                    throw new Exception("Argument --name without value.");
+
+                if(args[i + 1] == "")
+                    throw new Exception("Argument --name without value.");
+                
+                m_SeverAdress = args[i + 1];
+            }
+            if(args[i] == "--port")
+            {
+                if(i + 1 == args.Length)
+                    throw new Exception("Argument --name without value.");
+
+                if(args[i + 1] == "")
+                    throw new Exception("Argument --name without value.");
+                
+                m_ServerPort = Int32.Parse(args[i + 1]);
             }
         }
     }
