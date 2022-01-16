@@ -2,6 +2,15 @@
 <br/>
 <br/>
 
+## Steps
+    1. Creating the game in Unity
+    2. Building server and client version of the game
+    3. Creating Docker image using server build
+    4. Pushing it to Docker registry or Google Cloud registry
+    5. Installing Kubernetes and Agones in Google Cloud Platform
+
+
+
 There was problem with memory leak in default AgonesSdk.cs on my Unity version 2021.1.27f1
  
 Memory leakead happend on <br/>
