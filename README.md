@@ -1,3 +1,7 @@
+## As a part of Introduction to Cloud Computing course at my university I'm preparing custom game deployment with dedicated game server hosted on Google Cloud Platform
+<br/>
+<br/>
+
 There was problem with memory leak in default AgonesSdk.cs on my Unity version 2021.1.27f1
  
 Memory leakead happend on <br/>
