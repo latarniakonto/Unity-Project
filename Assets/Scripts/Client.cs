@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using MyEssentials;
 using MyEssentials.Serialization;
@@ -12,13 +13,14 @@ public class Client : MonoBehaviour
     // Start is called before the first frame update
 
     private UdpClient m_Client;
-    private string m_ClientId = null;
-    private string m_SeverAdress = "172.19.0.2";
-    private int m_ServerPort = 26000;
-    [SerializeField] private float m_Speed = 3f; 
+    private string m_ClientId = "Krzysiek";
+    private string m_SeverAdress = "34.118.23.184";
+    private int m_ServerPort = 7660;
+    [SerializeField] private float m_Speed = 3f;
     [SerializeField] private GameObject m_PlayerInstance;
+    private TextMeshPro m_PlayerLabel;
     private Vector3 m_OldPosition;
-    private SerializationManager m_Serialization;  
+    private SerializationManager m_Serialization;
     private Player[] m_OtherPlayers;
     private Dictionary<string, GameObject> m_OtherPlayersInstances;
     void Awake()
@@ -38,6 +40,9 @@ public class Client : MonoBehaviour
                 if(args[i + 1] == "")
                     throw new Exception("Argument --name without value.");
                 
+                if(args[i + 1].Length > 15)
+                    throw new Exception("Player name is too long - max 15 characters");
+
                 m_ClientId = args[i + 1];                
             }
             if(args[i] == "--ip")
@@ -71,6 +76,8 @@ public class Client : MonoBehaviour
         m_OtherPlayers = new Player[4];
         m_OtherPlayersInstances = new Dictionary<string, GameObject>();
         m_OtherPlayersInstances[m_ClientId] = gameObject;
+        m_PlayerLabel = GetComponentInChildren<TextMeshPro>();
+        m_PlayerLabel.text = m_ClientId;        
     }
 
     // Update is called once per frame
