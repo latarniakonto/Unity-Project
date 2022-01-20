@@ -11,7 +11,7 @@ using MyEssentials;
 using MyEssentials.Serialization;
 public class Server : MonoBehaviour
 {
-    private int m_Port = 26000;
+    private int m_Port = 7777;
     private UdpClient m_Server;
     private AgonesSdk m_Agones;
     private GameServer m_GameServer; 
@@ -42,33 +42,20 @@ public class Server : MonoBehaviour
         m_Agones = GetComponent<AgonesSdk>();
         Task<bool> connectTask = m_Agones.Connect();
         Task<bool> readyTask = m_Agones.Ready();
-        Task<GameServer> gameServerTask = m_Agones.GameServer();
-        
+                
         bool connected = await connectTask;
-        if(connected)
-        {
-            Debug.Log("Succesfully connected to Agones.");
-            bool ready = await readyTask;
-            if(ready)
-            {
-                Debug.Log("Agones is ready for creating game server.");
-                m_GameServer = await gameServerTask;
-            }else
-            {
-                Debug.Log("Agones is not ready for creating game server.");            
-            }
-        }else
+        if(!connected)
         {
             Debug.Log("Could not connect to Agones.");
-        }
-        
-        if(m_GameServer == null)
+            Application.Quit(1);
+        }        
+        Debug.Log("Succesfully connected to Agones");        
+        bool ready = await m_Agones.Ready();
+        if(!ready)
         {
-            Debug.Log("Succesfully created game server.");
-        }else
-        {
-            Debug.Log("Could not create game server");
-        }
+            Debug.Log("Agones is not ready for retrieving the players.");
+            Application.Quit(1);
+        }        
     }
     void Awake()
     {
@@ -113,7 +100,7 @@ public class Server : MonoBehaviour
             IPEndPoint remote = null;
             byte[] recvBytes = m_Server.Receive(ref remote);
             Player player = m_Serialization.DeserializePlayer(recvBytes);            
-            if(m_PlayersCount < m_Players.Length)
+            if(m_PlayersCount <= m_Players.Length)
             {
                 AddNewPlayer(player);                
                 byte[] bytes = m_Serialization.SerializePlayers(m_Players);
