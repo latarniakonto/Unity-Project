@@ -9,12 +9,14 @@ namespace MyEssentials
         public float xPosition;
         public float yPosition;
         public float zPosition;
-        public Player(string id, float xPosition, float yPosition, float zPosition)
+        public bool isPlaying;
+        public Player(string id, float xPosition, float yPosition, float zPosition, bool isPlaying)
         {
             this.id = id;
             this.xPosition = xPosition;
             this.yPosition = yPosition;
             this.zPosition = zPosition;
+            this.isPlaying = isPlaying;
         }
     }
 }

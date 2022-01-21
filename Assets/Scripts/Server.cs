@@ -99,34 +99,71 @@ public class Server : MonoBehaviour
         {
             IPEndPoint remote = null;
             byte[] recvBytes = m_Server.Receive(ref remote);
-            Player player = m_Serialization.DeserializePlayer(recvBytes);            
-            if(m_PlayersCount <= m_Players.Length)
+            Player player = m_Serialization.DeserializePlayer(recvBytes);
+            if(player.isPlaying)
             {
-                AddNewPlayer(player);                
-                byte[] bytes = m_Serialization.SerializePlayers(m_Players);
-                m_Server.Send(bytes, bytes.Length, remote);            
+                if(m_PlayersCount <= m_Players.Length)
+                {
+                    AddNewPlayer(player);                
+                    byte[] bytes = m_Serialization.SerializePlayers(m_Players);
+                    m_Server.Send(bytes, bytes.Length, remote);
+                }else
+                {
+                    Debug.Log("Server can't listen to more clients.");
+                }
             }else
-            {
-                Debug.Log("Server can't listen to more clients.");
+            {         
+                NotifyAboutOngoingPlayerRemoval(player, remote);
+                StartCoroutine(RemovePlayerFromServer(player));
             }
         }
-    }    
+    }
+    private void NotifyAboutOngoingPlayerRemoval(Player player, IPEndPoint remote)
+    {
+        for(int i = 0; i < m_Players.Length; i++)
+        {
+            if(m_Players[i].id == player.id)
+            {
+                m_Players[i].isPlaying = false;
+                break;
+            }
+        }
+        byte[] bytes = m_Serialization.SerializePlayers(m_Players);
+        m_Server.Send(bytes, bytes.Length, remote);
+    }
+    private IEnumerator RemovePlayerFromServer(Player player)
+    {
+        yield return new WaitForSeconds(1f);
+        Player[] updatePlayersArray = new Player[4];
+        int index = 0;
+        for(int i = 0; i < m_Players.Length; i++)
+        {
+            if(m_Players[i].id != player.id)
+            {
+                updatePlayersArray[index] = m_Players[i];
+                index++;
+            }
+        }        
+        m_PlayersCount--;
+        m_Players = updatePlayersArray;
+    }
+
     private void AddNewPlayer(Player player)
     {
         for(int i = 0; i < m_PlayersCount; i++)
         {
             //Don't add the same player twice, just update position
             if(m_Players[i].id == player.id)
-            {                
+            {
                 m_Players[i].xPosition = player.xPosition;
                 m_Players[i].yPosition = player.yPosition;
                 m_Players[i].zPosition = player.zPosition;
                 Debug.Log(@$"Player {player.id} position x:{player.xPosition} y:{player.yPosition} z:{player.zPosition}");
                 return;
-            }                
+            }
         }
         m_Players[m_PlayersCount] = player;
-        m_PlayersCount++;        
+        m_PlayersCount++;
         Debug.Log(@$"Player {player.id} position x:{player.xPosition} y:{player.yPosition} z:{player.zPosition}");
     }
     void OnDestroy() 

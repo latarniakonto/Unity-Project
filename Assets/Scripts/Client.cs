@@ -13,9 +13,9 @@ public class Client : MonoBehaviour
     // Start is called before the first frame update
 
     private UdpClient m_Client;
-    private string m_ClientId = "Krzysiek";
-    private string m_SeverAdress = "34.118.23.184";
-    private int m_ServerPort = 7660;
+    private string m_ClientId = "Krzssysiek";
+    private string m_SeverAdress = "172.20.0.2";
+    private int m_ServerPort = 7777;
     [SerializeField] private float m_Speed = 3f;
     [SerializeField] private GameObject m_PlayerInstance;
     private TextMeshPro m_PlayerLabel;
@@ -97,27 +97,40 @@ public class Client : MonoBehaviour
     public void UpdateOtherPlayers(Player[] players)
     {        
         foreach(var player in players)
-        {           
+        {                             
             if(player.id != null && m_ClientId != player.id)
             {      
-                if(!m_OtherPlayersInstances.ContainsKey(player.id))          
+                if(!player.isPlaying)
                 {
-                    Vector3 newPlayerPosition = new Vector3(player.xPosition,
-                                                            player.yPosition,
-                                                            player.zPosition);
-                    GameObject newPlayer = Instantiate(m_PlayerInstance,
-                                                       newPlayerPosition,
-                                                       Quaternion.identity);
-                    m_OtherPlayersInstances[player.id] = newPlayer;
+                    if(m_OtherPlayersInstances.ContainsKey(player.id))
+                    {
+                        var playerToRemove = m_OtherPlayersInstances[player.id];
+                        m_OtherPlayersInstances.Remove(player.id);
+                        Destroy(playerToRemove);
+                    }
                 }else
-                {                    
-                    var newPlayerPosition = new Vector3(player.xPosition,
-                                                            player.yPosition,
-                                                            player.zPosition);
-                    var currentPlayerPosition = m_OtherPlayersInstances[player.id].transform.position;
-                    m_OtherPlayersInstances[player.id].transform.position = Vector3.Lerp(currentPlayerPosition,
-                                                                                         newPlayerPosition,
-                                                                                         0.3f);
+                {
+                    if(!m_OtherPlayersInstances.ContainsKey(player.id))
+                    {
+                        Vector3 newPlayerPosition = new Vector3(player.xPosition,
+                                                                player.yPosition,
+                                                                player.zPosition);
+                        GameObject newPlayer = Instantiate(m_PlayerInstance,
+                                                        newPlayerPosition,
+                                                        Quaternion.identity);
+                        var playerLabel = newPlayer.GetComponentInChildren<TextMeshPro>();
+                        playerLabel.text = player.id;
+                        m_OtherPlayersInstances[player.id] = newPlayer;
+                    }else
+                    {                    
+                        var newPlayerPosition = new Vector3(player.xPosition,
+                                                                player.yPosition,
+                                                                player.zPosition);
+                        var currentPlayerPosition = m_OtherPlayersInstances[player.id].transform.position;
+                        m_OtherPlayersInstances[player.id].transform.position = Vector3.Lerp(currentPlayerPosition,
+                                                                                            newPlayerPosition,
+                                                                                            0.3f);
+                    }
                 }
             }
         }
@@ -141,10 +154,10 @@ public class Client : MonoBehaviour
 
         transform.Translate(xTranslation, yTranslation, 0f);
 
-        SendPlayerPositionToServer();
+        SendPlayerStateToServer(true);
         //m_OldTransform = transform; 
     }
-    public void SendPlayerPositionToServer()
+    public void SendPlayerStateToServer(bool isPlaying)
     {        
         // if(Vector3.Distance(m_OldPosition, transform.position) < 1f) 
         //     return;
@@ -154,11 +167,16 @@ public class Client : MonoBehaviour
         float x = transform.position.x;
         float y = transform.position.y;
         float z = transform.position.z;
-        Player player = new Player(id, x, y, z);
+        Player player = new Player(id, x, y, z, isPlaying);
 
-        Debug.Log(@$"Sending Player {id} position x:{x} y:{y} z:{z}");
+        Debug.Log(@$"Sending Player {id} position x:{x} y:{y} z:{z} {isPlaying}");
         
         byte[] bytes = m_Serialization.SerializePlayer(player);
-        m_Client.Send(bytes, bytes.Length);                
+        m_Client.Send(bytes, bytes.Length);             
     }
+
+   void OnDestroy()
+   {       
+       SendPlayerStateToServer(false);
+   }
 }
