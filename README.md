@@ -21,16 +21,16 @@
 ## Creating the game
 I am using Unity Engine to make this waiting room. You can use also Unreal Engine. For the full list of supported platforms by Agones SDK check the following link: https://agones.dev/site/docs/guides/client-sdks/
 
-<img src="https://i.imgur.com/WHRaFlt.png" width="300" height="250" />
+<img src="https://i.imgur.com/WHRaFlt.png"/>
 
 ## Game builds
 You need to have a server version of yourn game and client version. Create builds
 for both versions.
 
-<img src="https://i.imgur.com/9UQGIK6.png" width="300" height="250" />
-<img src="https://i.imgur.com/IEgegAG.png" width="300" height="250" />
-
-There was problem with memory leak in default AgonesSdk.cs on my Unity version 2021.1.27f1 run on Ubuntu Focal
+<p>
+    <img src="https://i.imgur.com/9UQGIK6.png" width="400" height="300" />
+    <img src="https://i.imgur.com/IEgegAG.png" width="400" height="300" />
+</p>
 
 ## Docker image
 I am using Docker Compose to create the Docker image. I have the following structure in my unity server build folder. <br/>
@@ -64,6 +64,9 @@ Push the image to your GCP project:<br/>
 ## Set up your GCP project
 
 
+
+
+There was problem with memory leak in default AgonesSdk.cs on my Unity version 2021.1.27f1 run on Ubuntu Focal
  
 Memory leakead happend on <br/>
 ```uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json))```<br/>
