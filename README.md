@@ -1,5 +1,12 @@
 ## As a part of Introduction to Cloud Computing course at my university I'm preparing custom game deployment with dedicated game server hosted on Google Cloud Platform
 
+
+## Requirements
+    Google Cloud Platform account
+    Google Cloud SDK installed
+    Docker installed
+    Docker Compose installed
+
 <br/>
 
 ## Steps
@@ -8,11 +15,55 @@
     3. Creating Docker image using server build
     4. Pushing it to Docker registry or Google Cloud registry
     5. Installing Kubernetes and Agones in Google Cloud Platform
-    
+    6. Run the game on the server
 <br/>
 
+## Creating the game
+I am using Unity Engine to make this waiting room. You can use also Unreal Engine. For the full list of supported platforms by Agones SDK check the following link: https://agones.dev/site/docs/guides/client-sdks/
 
-There was problem with memory leak in default AgonesSdk.cs on my Unity version 2021.1.27f1
+<img src="https://i.imgur.com/WHRaFlt.png" width="300" height="250" />
+
+## Game builds
+You need to have a server version of yourn game and client version. Create builds
+for both versions.
+
+<img src="https://i.imgur.com/9UQGIK6.png" width="300" height="250" />
+<img src="https://i.imgur.com/IEgegAG.png" width="300" height="250" />
+
+There was problem with memory leak in default AgonesSdk.cs on my Unity version 2021.1.27f1 run on Ubuntu Focal
+
+## Docker image
+I am using Docker Compose to create the Docker image. I have the following structure in my unity server build folder. <br/>
+Run this command when you have everything ready: <br/>
+`docker-compose up -d --build`
+```
+Server_Build_Folder_Structure
+│   docker-compose.yml
+|   fleet_configs.yaml
+└───unity
+│   │   Dockerfile
+│   │   entrypoint.sh
+│   │   sdk-server.linux.amd64
+│   └───build
+│       │   server.x86_64
+│       │   ...
+```
+After everything is ready you should have new Docker image.<br/>
+Find it's repository name using: <br/>
+`docker images`
+
+## Push the image to Google Container Registry
+Tag the image in specific format: <br/>
+`docker tag docker_image_repository_name eu.gcr.io/GCP_PROJECT_ID/docker_image_repository_name` <br/>
+You have pick Google Container Registry location. I am using *eu.gcr.io* location. You can find more locations here:<br/>
+https://cloud.google.com/container-registry/docs/overview <br/>
+
+Push the image to your GCP project:<br/>
+`docker push eu.gcr.io/GCP_PROJECT_ID/docker_image_repository_name`
+
+## Set up your GCP project
+
+
  
 Memory leakead happend on <br/>
 ```uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json))```<br/>
