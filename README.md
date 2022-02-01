@@ -84,7 +84,7 @@ When you have everythin ready and set up run: <br/>
 Get IP adress and port <br/>
 `kubectl get gameservers` <br/>
 Before you connect to the server using your unity client build you have to
-create firewall rule to allow UDP traffic on given port.
+create firewall rule to allow UDP traffic on given port. <br/>
 `gcloud compute firewall-rules create your_firewall_rule_name --allow udp:7000-8000 --target-tags tag_for_from_cluster_if_none_check_default --description "Firewall to allow game server udp traffic"` <br/>
 *--target-tags* is referring to Google Kubernetes Engine cluster. You either specified one when you were creating the cluster or you didn't. If you don't know this tag, check your other GCP project firewall rules. The default tag should be there.
 
